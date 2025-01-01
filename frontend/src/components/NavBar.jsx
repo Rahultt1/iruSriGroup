@@ -24,8 +24,8 @@ const NavigationBar = () => {
 
   return (
     <>
-      <header className="header top-0 sticky bg-white shadow-md flex items-center justify-between mx-auto px-16 left-0 w-full z-10">
-        <div className="w-3/12">
+      <header className="header fixed top-0 bg-white shadow-md flex items-center justify-between mx-auto px-16 left-0 w-full z-50">
+      <div className="w-3/12">
           <h1 className="text-3xl font-bold">
             <span className="text-blue-600">GBook</span>
             <span className="text-black">!</span>
