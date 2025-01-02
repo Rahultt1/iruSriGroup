@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import axios from 'axios';
 import debounce from 'lodash/debounce';
+import BookHoverDetails from './BookHoverDetails';
 
 const SearchBar = () => {
   const [search, setSearch] = useState('');
@@ -9,6 +10,8 @@ const SearchBar = () => {
   const [searchResults, setSearchResults] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
   const [similarBooks, setSimilarBooks] = useState([]);
+  const [hoveredBook, setHoveredBook] = useState(null);
+  const [hoverPosition, setHoverPosition] = useState({ x: 0, y: 0 });
   const searchRef = useRef(null);
   const scrollRef = useRef(null);
 
@@ -20,7 +23,6 @@ const SearchBar = () => {
           const response = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=10`);
           setSearchResults(response.data.items || []);
           setIsSearchActive(true);
-          // Fetch similar books based on the search query
           fetchSimilarBooks(query);
         } catch (error) {
           console.error('Error fetching search results:', error);
@@ -34,25 +36,35 @@ const SearchBar = () => {
     }, 300)
   ).current;
 
-
-  //Fetch Similar Books
   const fetchSimilarBooks = async (query) => {
     try {
       const similarResponse = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=subject:${query}&maxResults=5`);
       let similarBooks = similarResponse.data.items || [];
       
-      // If similar books are not available, fetch additional search results
       if (similarBooks.length === 0) {
         const additionalResponse = await axios.get(`https://www.googleapis.com/books/v1/volumes?q=${query}&maxResults=5&startIndex=10`);
         similarBooks = additionalResponse.data.items || [];
       }
       
-      console.log('Similar or additional books:', similarBooks);
       setSimilarBooks(similarBooks);
     } catch (error) {
-      console.error('Error fetching similar or additional books:', error);
+      console.error('Error fetching similar books:', error);
     }
   };
+
+  const handleMouseEnter = (book, event) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    setHoverPosition({
+      x: rect.left + rect.width / 2,
+      y: rect.top - 20, // Position slightly above the hovered item
+    });
+    setHoveredBook(book);
+  };
+  
+  const handleMouseLeave = () => {
+    setHoveredBook(null);
+  };
+
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (searchRef.current && !searchRef.current.contains(event.target)) {
@@ -65,7 +77,7 @@ const SearchBar = () => {
       document.removeEventListener('mousedown', handleClickOutside);
       debouncedSearch.cancel();
     };
-  }, [debouncedSearch]);
+  }, []);
 
   const handleInputChange = (e) => {
     const query = e.target.value;
@@ -88,9 +100,7 @@ const SearchBar = () => {
     setSearch('');
     setSearchResults([]);
   };
-useEffect(() => {
-  console.log('Similar books updated:', similarBooks);
-}, [similarBooks]);
+
   return (
     <div ref={searchRef} className="relative w-full max-w-3xl mx-auto">
       <motion.div
@@ -106,7 +116,7 @@ useEffect(() => {
           value={search}
           onChange={handleInputChange}
           onFocus={() => setIsSearchActive(true)}
-          placeholder="Search  Books / Authors / Categories"
+          placeholder="Quick search Books / Authors"
           className="w-full px-6 py-3 text-lg text-blue-50 bg-white bg-opacity-5 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 transition duration-300 placeholder-blue-200"
         />
         {!isSearchActive ? (
@@ -157,7 +167,6 @@ useEffect(() => {
             style={{
               maxHeight: 'calc(100vh - 100px)',
               minHeight: '500px', 
-
               overflowY: 'auto',
               overflowX: 'hidden',
             }}
@@ -180,30 +189,40 @@ useEffect(() => {
                       </svg>
                     </button>
                     <div
-  ref={scrollRef}
-  className="flex overflow-x-auto space-x-4 pb-4 scrollbar-hide"
-  style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
->
-  {searchResults.map((book, index) => (
-    <div key={index} className="flex-shrink-0 w-24 space-y-2">
-      <div className="bg-transparent rounded-lg transition-transform duration-200 hover:scale-105 flex flex-col items-center">
-        <img
-          src={book.volumeInfo?.imageLinks?.thumbnail || 'https://via.placeholder.com/128x192?text=No+Image'}
-          alt={book.volumeInfo?.title || 'Book cover'}
-          className="w-24 h-36 object-cover rounded-lg shadow-md"
-          onError={(e) => {
-            e.target.onerror = null;
-            e.target.src = 'https://via.placeholder.com/128x192?text=No+Image';
-          }}
-        />
-        <div className="mt-2 text-center w-full px-2">
-          <h4 className="text-xs font-semibold text-white truncate">{book.volumeInfo?.title || 'Untitled'}</h4>
-          <p className="text-xs text-gray-300 truncate">{book.volumeInfo?.authors?.[0] || 'Unknown Author'}</p>
-        </div>
-      </div>
-    </div>
-  ))}
-</div>
+                      ref={scrollRef}
+                      className="flex overflow-x-auto space-x-4 pb-4 scrollbar-hide"
+                      style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                    >
+                      {searchResults.map((book, index) => (
+                        <div
+                          key={index}
+                          className="flex-shrink-0 w-24 space-y-2 relative group"
+                          onMouseEnter={(e) => handleMouseEnter(book, e)}
+                          onMouseLeave={handleMouseLeave}
+                        >
+                          <div className="bg-transparent rounded-lg transition-transform duration-200 hover:scale-105 flex flex-col items-center">
+                            <img
+                              src={book.volumeInfo?.imageLinks?.thumbnail || 'https://via.placeholder.com/128x192?text=No+Image'}
+                              alt={book.volumeInfo?.title || 'Book cover'}
+                              className="w-24 h-36 object-cover rounded-lg shadow-md"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://via.placeholder.com/128x192?text=No+Image';
+                              }}
+                            />
+                            <div className="mt-2 text-center w-full px-2">
+                              <h4 className="text-xs font-semibold text-white truncate">{book.volumeInfo?.title || 'Untitled'}</h4>
+                              <p className="text-xs text-gray-300 truncate">{book.volumeInfo?.authors?.[0] || 'Unknown Author'}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+
+                    
+  
+
+
                     <button
                       onClick={() => handleScroll('right')}
                       className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white bg-opacity-75 p-2 rounded-full shadow-md text-blue-500 hover:text-blue-700 transition-colors duration-200 z-10"
@@ -214,33 +233,30 @@ useEffect(() => {
                     </button>
                   </div>
 
-{/* Similar Books or Additional Results Section */}
-{similarBooks.length > 0 && (
-  <div>
-    <h3 className="text-xl font-thin text-white mb-4">
-      {searchResults.some(book => similarBooks.includes(book)) ? 'Additional Results' : 'Similar Books'}
-    </h3>
-    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
-      {similarBooks.map((book, index) => (
-        <div key={`similar-${index}`} className="flex flex-col items-center">
-          <img
-            src={book.volumeInfo?.imageLinks?.thumbnail || 'https://via.placeholder.com/128x192?text=No+Image'}
-            alt={book.volumeInfo?.title || 'Book cover'}
-            className="w-20 h-30 object-cover rounded-lg shadow-md mb-2"
-            onError={(e) => {
-              e.target.onerror = null;
-              e.target.src = 'https://via.placeholder.com/128x192?text=No+Image';
-            }}
-          />
-          <div className="w-full px-2">
-            <h4 className="text-xs font-semibold text-white text-center truncate">{book.volumeInfo?.title || 'Untitled'}</h4>
-            <p className="text-xs text-gray-300 text-center truncate">{book.volumeInfo?.authors?.[0] || 'Unknown Author'}</p>
-          </div>
-        </div>
-      ))}
-    </div>
-  </div>
-)}
+                  {similarBooks.length > 0 && (
+                    <div>
+                      <h3 className="text-xl font-thin text-white mb-4">Similar Books</h3>
+                      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4">
+                        {similarBooks.map((book, index) => (
+                          <div key={`similar-${index}`} className="flex flex-col items-center">
+                            <img
+                              src={book.volumeInfo?.imageLinks?.thumbnail || 'https://via.placeholder.com/128x192?text=No+Image'}
+                              alt={book.volumeInfo?.title || 'Book cover'}
+                              className="w-20 h-30 object-cover rounded-lg shadow-md mb-2"
+                              onError={(e) => {
+                                e.target.onerror = null;
+                                e.target.src = 'https://via.placeholder.com/128x192?text=No+Image';
+                              }}
+                            />
+                            <div className="w-full px-2">
+                              <h4 className="text-xs font-semibold text-white text-center truncate">{book.volumeInfo?.title || 'Untitled'}</h4>
+                              <p className="text-xs text-gray-300 text-center truncate">{book.volumeInfo?.authors?.[0] || 'Unknown Author'}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </>
               )}
             </div>

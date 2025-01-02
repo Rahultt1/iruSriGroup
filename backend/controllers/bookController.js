@@ -41,3 +41,30 @@ exports.getTrendingBooks = async (req, res) => {
     res.status(500).send('Failed to fetch trending books');
   }
 };
+
+exports.getBooksByGenre = async (req, res) => {
+  const { genre } = req.params;
+  
+  if (!genre) {
+    return res.status(400).json({ error: 'Genre is required' });
+  }
+
+  try {
+    const response = await axios.get(googleBooksAPI, {
+      params: {
+        q: `subject:${genre}`,
+        maxResults: 40,
+        key: process.env.GOOGLE_BOOKS_API_KEY,
+      },
+    });
+
+    if (!response.data.items || response.data.items.length === 0) {
+      return res.status(404).json({ error: 'No books found for this genre' });
+    }
+
+    res.json(response.data.items);
+  } catch (error) {
+    console.error('Error fetching books by genre:', error);
+    res.status(500).json({ error: 'Failed to fetch books by genre' });
+  }
+};

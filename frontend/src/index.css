@@ -6,3 +6,16 @@
     scroll-behavior: smooth;
   }
   
+
+
+
+.hero-section {
+  padding-bottom: 2rem; /* Reduce padding */
+  margin-bottom: 0;
+  min-height: 80vh; /* Adjust height to avoid excessive blank space */
+  background: linear-gradient(to bottom, #1E3A8A, #FFFFFF); /* Add a subtle gradient */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
