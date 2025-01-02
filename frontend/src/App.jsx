@@ -3,12 +3,14 @@ import NavigationBar from './components/NavBar';
 import SearchBar from './components/SearchBar';
 import BookList from './components/BookList';
 import LandingPage from './pages/LandingPage';
+import Footer from './components/Footer';
 
 const App = () => {
   return (
     <Router>
       <div className="">
         <NavigationBar className="z-50" />
+       
         <div className="flex-grow relative z-0 pt-2"> 
           <div className="container mx-auto px-0">
             <SearchBar />
@@ -18,6 +20,7 @@ const App = () => {
             </Routes>
           </div>
         </div>
+        <Footer  />
       </div>
     </Router>
   );

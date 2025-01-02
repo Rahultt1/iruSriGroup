@@ -44,7 +44,7 @@ const NavigationBar = () => {
               <a href="">Collections</a>
             </li>
             <li className="p-4 border-b-2 border-blue-600 border-opacity-0 hover:border-opacity-100 hover:text-blue-500 duration-200 cursor-pointer">
-              <a href="/discussion">New Arrivals</a>
+              <a href="/">New Arrivals</a>
             </li>
           </ul>
         </nav>

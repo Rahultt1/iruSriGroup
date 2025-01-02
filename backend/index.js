@@ -25,4 +25,4 @@ app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
 });
 
-module.exports = app; // Load environment variables from .env file
+module.exports = app; 

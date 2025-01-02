@@ -1,17 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import  { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import GenreSelector from './GenreSelector';
-import AuthorSelector from './AuthorSelector';
 
 const BookTabs = () => {
   const [activeTab, setActiveTab] = useState('trending');
   const [trendingBooks, setTrendingBooks] = useState([]);
   const [newArrivals, setNewArrivals] = useState([]);
   const [genreBooks, setGenreBooks] = useState([]);
-  const [authorBooks, setAuthorBooks] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState(null);
-  const [selectedAuthor, setSelectedAuthor] = useState(null);
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [visibleBooks, setVisibleBooks] = useState(8);
@@ -43,6 +40,7 @@ const BookTabs = () => {
     fetchBooks();
   }, []);
 
+  //Handle genre select
   const handleGenreSelect = async (genre) => {
     setSelectedGenre(genre);
     setIsLoading(true);
@@ -64,26 +62,7 @@ const BookTabs = () => {
     }
   };
 
-  const handleAuthorSelect = async (author) => {
-    setSelectedAuthor(author);
-    setIsLoading(true);
-    setError(null);
-    try {
-      const response = await axios.get('https://www.googleapis.com/books/v1/volumes', {
-        params: {
-          q: `inauthor:${author}`,
-          maxResults: 20,
-        },
-      });
-      setAuthorBooks(response.data.items);
-      setActiveTab('author');
-    } catch (error) {
-      setError('Failed to fetch author books. Please try again later.');
-      console.error('Error fetching author books:', error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  
 
   const contentVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -104,9 +83,7 @@ const BookTabs = () => {
       case 'genre':
         books = genreBooks;
         break;
-      case 'author':
-        books = authorBooks;
-        break;
+      
       default:
         books = [];
     }
@@ -133,7 +110,7 @@ const BookTabs = () => {
         </div>
         {visibleBooks < books.length && (
           <button
-            className="mt-4 bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600 transition-colors"
+            className="mt-4 bg-transparent text-sm   text-black font-semibold px-2 py-2 rounded hover'bg-black transition-colors"
             onClick={() => setVisibleBooks(prev => Math.min(prev + 8, books.length))}
           >
             View More
@@ -145,13 +122,28 @@ const BookTabs = () => {
 
   return (
     <div className="w-full max-w-6xl ml-6 mt-4 flex">
-      <div className="w-1/4 pr-4 sticky top-4 self-start">
+      <div className="w-1/4 pr-4 sticky -mt-12 mr-10 -ml-6 self-start">
         <GenreSelector onGenreSelect={handleGenreSelect} />
-        <AuthorSelector onAuthorSelect={handleAuthorSelect} />
+        
       </div>
-      <div className="w-3/4 bg-blue-50 rounded-3xl shadow-2xl overflow-hidden">
+      <div className="w-3/4 bg-blue-50 rounded-3xl shadow-2xl overflow-hidden relative">
+       
+        {/* Background SVG */}
+        <svg
+          className="absolute inset-0 w-full h-full"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 1440 320"
+          preserveAspectRatio="none"
+        >
+          <path
+            fill="#3B82F6"
+            fillOpacity="0.1"
+            d="M0,96L48,112C96,128,192,160,288,186.7C384,213,480,235,576,213.3C672,192,768,128,864,128C960,128,1056,192,1152,213.3C1248,235,1344,213,1392,202.7L1440,192L1440,320L1392,320C1344,320,1248,320,1152,320C1056,320,960,320,864,320C768,320,672,320,576,320C480,320,384,320,288,320C192,320,96,320,48,320L0,320Z"
+          ></path>
+        </svg>
+
         {/* Heading Section */}
-        <div className="text-center p-6">
+        <div className="text-center p-6 relative z-10">
           <h2 className="text-2xl font-bold text-gray-800">
             Discover Your Next Favorite Book
           </h2>
@@ -161,14 +153,14 @@ const BookTabs = () => {
         </div>
 
         {/* Tabs */}
-        <div className="font-sans p-4">
+        <div className="font-sans p-4 relative z-10">
           <ul className="flex justify-center gap-2 w-max mx-auto bg-white p-1 rounded-full shadow-[0_2px_8px_-1px_rgba(6,81,237,0.4)]" role="tablist">
             <li
               role="tab"
               aria-selected={activeTab === 'trending'}
               aria-controls="trending-tab"
               className={`tab text-sm font-bold py-3 px-6 rounded-full cursor-pointer ${
-                activeTab === 'trending' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+                activeTab === 'trending' ? 'bg-black text-white' : 'bg-gray-200 text-gray-600'
               }`}
               onClick={() => setActiveTab('trending')}
             >
@@ -179,7 +171,7 @@ const BookTabs = () => {
               aria-selected={activeTab === 'newArrivals'}
               aria-controls="new-arrivals-tab"
               className={`tab text-sm font-bold py-3 px-6 rounded-full cursor-pointer ${
-                activeTab === 'newArrivals' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+                activeTab === 'newArrivals' ? 'bg-black text-white' : 'bg-gray-200 text-gray-600'
               }`}
               onClick={() => setActiveTab('newArrivals')}
             >
@@ -191,26 +183,15 @@ const BookTabs = () => {
                 aria-selected={activeTab === 'genre'}
                 aria-controls="genre-tab"
                 className={`tab text-sm font-bold py-3 px-6 rounded-full cursor-pointer ${
-                  activeTab === 'genre' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
+                  activeTab === 'genre' ? 'bg-black text-white' : 'bg-gray-200 text-gray-600'
                 }`}
                 onClick={() => setActiveTab('genre')}
               >
                 {selectedGenre}
               </li>
             )}
-            {selectedAuthor && (
-              <li
-                role="tab"
-                aria-selected={activeTab === 'author'}
-                aria-controls="author-tab"
-                className={`tab text-sm font-bold py-3 px-6 rounded-full cursor-pointer ${
-                  activeTab === 'author' ? 'bg-blue-600 text-white' : 'bg-gray-200 text-gray-600'
-                }`}
-                onClick={() => setActiveTab('author')}
-              >
-                {selectedAuthor}
-              </li>
-            )}
+            
+            
           </ul>
         </div>
 
@@ -223,7 +204,7 @@ const BookTabs = () => {
             animate="visible"
             exit="hidden"
             transition={{ duration: 0.3 }}
-            className="p-6"
+            className="p-6 relative z-10"
           >
             {isLoading ? (
               <div className="text-center">
