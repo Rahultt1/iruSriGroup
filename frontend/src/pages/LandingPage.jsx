@@ -1,27 +1,11 @@
-import React, { useEffect, useState } from 'react';
+
 import { Link } from 'react-scroll';
-import axios from 'axios';
 import SearchBar from '../components/SearchBar';
 import BookTabs from '../components/BookTabs';
 import "../index.css";
 
 const LandingPage = () => {
-  const [trendingBooks, setTrendingBooks] = useState([]);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    // Fetch trending books on component mount
-    const fetchTrendingBooks = async () => {
-      try {
-        const response = await axios.get('http://localhost:5000/api/trending');
-        setTrendingBooks(response.data);
-      } catch (error) {
-        setError('Failed to fetch trending books.');
-        console.error('Error fetching trending books:', error);
-      }
-    };
-    fetchTrendingBooks();
-  }, []);
+  
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-blue-600 to-indigo-900 text-white relative">

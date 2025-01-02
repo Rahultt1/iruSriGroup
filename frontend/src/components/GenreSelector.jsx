@@ -3,7 +3,7 @@ import axios from 'axios';
 import { motion, AnimatePresence } from 'framer-motion';
 import debounce from 'lodash/debounce';
 
-const GenreSelector = ({ onGenreSelect, onAuthorSelect }) => {
+const GenreSelector = ({ onGenreSelect }) => {
   const [genres, setGenres] = useState([]);
   const [selectedGenre, setSelectedGenre] = useState(null);
   const [isOpen, setIsOpen] = useState(false);

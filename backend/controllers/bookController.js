@@ -11,7 +11,7 @@ exports.searchBooks = async (req, res) => {
   }
 
   try {
-    // Fetch data from Google Books API
+    // Fetch data from  API
     const response = await axios.get(googleBooksAPI, {
       params: {
         q: search,
@@ -19,7 +19,7 @@ exports.searchBooks = async (req, res) => {
       },
     });
 
-    // Log the Google Books API response to debug
+    
     console.log('Google Books API Response:', response.data);
 
     // Send the items (books) to the frontend

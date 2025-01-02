@@ -1,16 +1,15 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 
 
 const BookList = () => {
   const [search, setSearch] = useState('');
-  const [books, setBooks] = useState([]);
+  // const [books, setBooks] = useState([]);
   const [filteredBooks, setFilteredBooks] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [filter, setFilter] = useState('all');
-  const [sort, setSort] = useState('title');
+
 
   const fetchBooks = async () => {
     if (!search) return;
@@ -24,8 +23,9 @@ const BookList = () => {
       if (response.data && response.data.length === 0) {
         setError('No books found for this search. Please try a different keyword.');
       } else {
-        setBooks(response.data);
+        
         setFilteredBooks(response.data);
+        
       }
     } catch (error) {
       setError('An error occurred while fetching the books. Please try again later.');
@@ -35,25 +35,9 @@ const BookList = () => {
     }
   };
 
-  useEffect(() => {
-    filterAndSortBooks();
-  }, [books, filter, sort]);
+ 
 
-  const filterAndSortBooks = () => {
-    let result = [...books];
-
-    // Sort
-    result.sort((a, b) => {
-      if (sort === 'title') {
-        return (a.volumeInfo?.title || '').localeCompare(b.volumeInfo?.title || '');
-      } else if (sort === 'author') {
-        return (a.volumeInfo?.authors?.[0] || '').localeCompare(b.volumeInfo?.authors?.[0] || '');
-      }
-      return 0;
-    });
-
-    setFilteredBooks(result);
-  };
+  
 
   return (
     <div className="container mx-auto -mt-48 px-4 py-8">
@@ -82,9 +66,6 @@ const BookList = () => {
       </motion.div>
 
       <div className="flex flex-col md:flex-row">
-        {/* <div className="md:w-1/4 mb-6 md:mb-0 md:mr-6">
-          <FilterPanel filter={filter} setFilter={setFilter} sort={sort} setSort={setSort} />
-        </div> */}
 
         <div className="md:w-3/4">
           {loading && (
